@@ -384,5 +384,46 @@
 
           setStage("4/4 — Waiting for the 3D scene…");
 
-          function showReady() {
-            if (startupFailed)
+                    function showReady() {
+            if (startupFailed) return;
+
+            currentStage = "Game ready";
+
+            status.textContent =
+              "Game files and scene loaded.\n" +
+              "Choose Play solo / test controls first.\n" +
+              "Then use the VR button to enter immersive VR.";
+          }
+
+          if (scene.hasLoaded) {
+            showReady();
+          } else {
+            const onLoaded = event => {
+              if (event.target !== scene) return;
+
+              scene.removeEventListener("loaded", onLoaded);
+              showReady();
+            };
+
+            scene.addEventListener("loaded", onLoaded);
+
+            setTimeout(() => {
+              if (!scene.hasLoaded && !startupFailed) {
+                showError(
+                  "The scripts loaded, but the 3D scene did not " +
+                  "finish loading within 20 seconds.\n" +
+                  "Send a screenshot of this message."
+                );
+              }
+            }, 20000);
+          }
+        } catch (error) {
+          showError(error.message || String(error));
+        }
+      }
+
+      boot();
+    })();
+  </script>
+</body>
+</html>
