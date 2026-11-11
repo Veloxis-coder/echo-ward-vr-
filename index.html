@@ -31,7 +31,8 @@ body{margin:0;background:#080b0d;color:#ece8d9;font:16px system-ui} #menu{positi
   await load(base+'/socket.io/socket.io.js');
   await load(base+'/easyrtc/easyrtc.js');
   await load('https://unpkg.com/networked-aframe@0.12.2/dist/networked-aframe.min.js');
-  await load('game.js');
+  await load('echo-controls-body.js?v=1');
+  await load('game.js?v=2');
  }catch(e){document.getElementById('status').textContent=e.message+' — check the server URL and HTTPS deployment.';}
 })();
 </script>
