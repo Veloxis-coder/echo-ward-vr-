@@ -1,26 +1,388 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ECHO WARD</title>
-<style>
-body{margin:0;background:#05090b;color:#e1e9df;font:16px system-ui}#menu{position:fixed;inset:0;z-index:20;background:#060b0eef;overflow:auto;padding:24px;box-sizing:border-box}.panel{max-width:680px;margin:auto}input,button{font:inherit;padding:12px;margin:5px;border:1px solid #67897d;background:#14231f;color:#eef5ec;border-radius:6px}input[type=text]{max-width:190px}label{display:block;margin:12px 0}#status{white-space:pre-wrap;color:#addcc5}#hud{position:fixed;left:12px;top:10px;z-index:2;pointer-events:none;white-space:pre-line;font-size:13px;text-shadow:0 1px 3px black}.muted{color:#b8c3b5}
-</style>
-<script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-<script src="config.js?v=3"></script></head>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  >
+
+  <title>ECHO WARD</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #05090b;
+      color: #e1e9df;
+      font: 16px system-ui, sans-serif;
+    }
+
+    #menu {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      overflow-y: auto;
+      padding: 24px;
+      background: rgba(6, 11, 14, 0.96);
+    }
+
+    .panel {
+      max-width: 680px;
+      margin: auto;
+    }
+
+    input,
+    button {
+      padding: 12px;
+      margin: 5px;
+      border: 1px solid #67897d;
+      border-radius: 6px;
+      background: #14231f;
+      color: #eef5ec;
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    input[type="text"] {
+      width: 190px;
+      max-width: 100%;
+    }
+
+    label {
+      display: block;
+      margin: 12px 0;
+    }
+
+    #status {
+      padding: 14px;
+      border: 1px solid #557565;
+      border-radius: 6px;
+      background: #101c18;
+      color: #addcc5;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    #startup-error {
+      display: none;
+      padding: 14px;
+      margin: 12px 0;
+      border: 1px solid #bd7777;
+      border-radius: 6px;
+      background: #321a1a;
+      color: #ffdada;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    #hud {
+      position: fixed;
+      top: 10px;
+      left: 12px;
+      z-index: 2;
+      pointer-events: none;
+      white-space: pre-line;
+      font-size: 13px;
+      text-shadow: 0 1px 3px black;
+    }
+
+    .muted {
+      color: #b8c3b5;
+    }
+  </style>
+</head>
+
 <body>
-<div id="menu"><div class="panel"><h1>ECHO WARD</h1>
-<p>Standalone browser prototype. Start in solo mode to test controls. No APK required.</p>
-<label>Name <input id="name" type="text" value="Wanderer" maxlength="20"></label>
-<label><input id="mic" type="checkbox"> Share my live microphone with room participants; enable noise-based AI hearing.</label>
-<label><input id="theft" type="checkbox"> Allow temporary local voice recording and distorted playback. Requires microphone sharing; clips are not uploaded.</label>
-<label>Noise threshold <input id="threshold" type="range" min="-60" max="-10" value="-30"> <span id="level">-30 dBFS</span></label>
-<button id="solo">Play solo / test controls</button><button id="create">Create room</button>
-<div><input id="code" type="text" maxlength="4" placeholder="ROOM CODE"><button id="join">Join room</button></div>
-<p id="status">Loading game…</p>
-<h3>Quest controllers</h3><p>Left stick: move. Right stick: snap turn. Right trigger: draw chalk near the floor. Right A: submit rune. Left X: make a lure noise. Left Y: mute/unmute microphone. Raise the left controller near your face for the spyglass.</p>
-<p>After starting, use A-Frame's VR button in the bottom corner. Use physical controllers, not optical hand tracking. A diagnostic panel in VR shows controller input.</p>
-<h3>Objective</h3><p>Slowly draw a closed floor circle. Press A to activate it. Stand beyond it and use X or your voice to lure The Echo into it. Escape through the green door.</p>
-<p class="muted">Desktop: WASD move, mouse drag look, C draw, Enter submit, V spyglass, N lure, M mute, R restart. Use HTTPS on Quest. Microphone capture and sharing are opt-in; only test with trusted people.</p>
-<p class="muted">One arena, one simplified rune, procedural full bodies. Not photorealistic; elbows and legs are estimated. Multiplayer needs a separate signaling server. Performance and headset behavior need device testing.</p>
-</div></div><div id="hud"></div>
-<script src="game.js?v=3"></script>
-</body></html>
+  <div id="menu">
+    <div class="panel">
+      <h1>ECHO WARD</h1>
+
+      <p>
+        Start with solo mode to test the game and controllers.
+        Multiplayer requires the separate room server.
+      </p>
+
+      <p id="status">Starting browser checks…</p>
+
+      <div id="startup-error" role="alert"></div>
+
+      <label>
+        Name
+        <input
+          id="name"
+          type="text"
+          value="Wanderer"
+          maxlength="20"
+        >
+      </label>
+
+      <label>
+        <input id="mic" type="checkbox">
+        Enable microphone capture and noise-based monster hearing.
+        In multiplayer, share live microphone audio with the room.
+      </label>
+
+      <label>
+        <input id="theft" type="checkbox">
+        Allow temporary local voice recording and distorted playback.
+        Requires microphone capture.
+      </label>
+
+      <label>
+        Noise threshold
+        <input
+          id="threshold"
+          type="range"
+          min="-60"
+          max="-10"
+          value="-30"
+        >
+        <span id="level">-30 dBFS</span>
+      </label>
+
+      <div>
+        <button id="solo" type="button">
+          Play solo / test controls
+        </button>
+
+        <button id="create" type="button">
+          Create room
+        </button>
+      </div>
+
+      <div>
+        <input
+          id="code"
+          type="text"
+          maxlength="4"
+          placeholder="ROOM CODE"
+          autocapitalize="characters"
+          autocomplete="off"
+          spellcheck="false"
+        >
+
+        <button id="join" type="button">
+          Join room
+        </button>
+      </div>
+
+      <h3>Quest controls</h3>
+
+      <p>
+        Left stick: move.<br>
+        Right stick: snap turn.<br>
+        Right trigger: draw chalk near a surface.<br>
+        Right A: submit the circle.<br>
+        Left X: make a lure noise.<br>
+        Left Y: mute/unmute microphone.<br>
+        Raise the left controller near your face: spyglass.
+      </p>
+
+      <p>
+        After starting, use the VR button in the bottom corner.
+        Use physical controllers for this version.
+      </p>
+
+      <h3>Objective</h3>
+
+      <p>
+        Slowly draw a closed circle on the floor.
+        Press A to activate it.
+        Stand beyond it and make noise to lure The Echo across it.
+        Escape through the green door.
+      </p>
+
+      <p class="muted">
+        Desktop: WASD move, mouse drag look, C draw,
+        Enter submit, V spyglass, N lure, M mute, R restart.
+      </p>
+
+      <p class="muted">
+        Startup diagnostics are enabled.
+        If a red error appears, copy its text or take a screenshot.
+      </p>
+    </div>
+  </div>
+
+  <div id="hud"></div>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const status = document.getElementById("status");
+      const errorBox = document.getElementById("startup-error");
+
+      let startupFailed = false;
+      let currentStage = "Browser checks";
+
+      function showError(message) {
+        startupFailed = true;
+
+        errorBox.style.display = "block";
+        errorBox.textContent +=
+          (errorBox.textContent ? "\n\n" : "") + message;
+
+        status.textContent =
+          "Startup problem detected. Read the red message below.";
+      }
+
+      function setStage(message) {
+        currentStage = message;
+
+        if (!startupFailed) {
+          status.textContent = message;
+        }
+      }
+
+      window.addEventListener("error", event => {
+        if (event.error || event.message) {
+          const location = event.filename
+            ? "\nFile: " + event.filename +
+              "\nLine: " + event.lineno
+            : "";
+
+          showError(
+            "JavaScript error during: " + currentStage +
+            "\n" + (event.message || "Unknown error") +
+            location
+          );
+        }
+      });
+
+      window.addEventListener("unhandledrejection", event => {
+        const reason = event.reason;
+
+        showError(
+          "An operation failed during: " + currentStage +
+          "\n" +
+          (reason && reason.message
+            ? reason.message
+            : String(reason))
+        );
+      });
+
+      function loadScript(url, timeoutMs = 20000) {
+        return new Promise((resolve, reject) => {
+          const script = document.createElement("script");
+
+          let finished = false;
+
+          const timer = setTimeout(() => {
+            if (finished) return;
+
+            finished = true;
+            script.remove();
+
+            reject(
+              new Error(
+                "Timed out loading:\n" + url +
+                "\nCheck your connection and that this file exists."
+              )
+            );
+          }, timeoutMs);
+
+          script.onload = () => {
+            if (finished) return;
+
+            finished = true;
+            clearTimeout(timer);
+            resolve();
+          };
+
+          script.onerror = () => {
+            if (finished) return;
+
+            finished = true;
+            clearTimeout(timer);
+
+            reject(
+              new Error(
+                "Could not load:\n" + url +
+                "\nIf this is game.js, it must be in the same " +
+                "folder as index.html, with that exact filename."
+              )
+            );
+          };
+
+          script.src = url;
+          script.async = false;
+
+          if (new URL(url, location.href).origin !== location.origin) {
+            script.crossOrigin = "anonymous";
+          }
+
+          document.head.appendChild(script);
+        });
+      }
+
+      async function boot() {
+        try {
+          if (!window.isSecureContext) {
+            throw new Error(
+              "This page is not a secure browser context.\n" +
+              "Open the HTTPS GitHub Pages game address, " +
+              "not a downloaded HTML file or an ordinary LAN HTTP page."
+            );
+          }
+
+          setStage("1/4 — Loading A-Frame…");
+
+          await loadScript(
+            "https://aframe.io/releases/1.4.2/aframe.min.js"
+          );
+
+          if (!window.AFRAME || !window.AFRAME.THREE) {
+            throw new Error(
+              "A-Frame loaded incorrectly. The 3D engine is unavailable."
+            );
+          }
+
+          const fresh = Date.now();
+
+          setStage("2/4 — Loading config.js…");
+
+          try {
+            await loadScript("./config.js?v=" + fresh);
+          } catch (configError) {
+            console.warn(configError);
+
+            window.ECHO_CONFIG = {
+              signalingURL: "",
+              maxPlayersRecommended: 2
+            };
+          }
+
+          window.ECHO_CONFIG = window.ECHO_CONFIG || {
+            signalingURL: "",
+            maxPlayersRecommended: 2
+          };
+
+          setStage("3/4 — Loading game.js…");
+
+          await loadScript("./game.js?v=" + fresh);
+
+          if (startupFailed) return;
+
+          const scene = document.querySelector("a-scene");
+
+          if (!scene) {
+            throw new Error(
+              "game.js loaded, but it did not create a game scene.\n" +
+              "Check that game.js contains the complete replacement " +
+              "JavaScript, not HTML, a patch, or a GitHub page."
+            );
+          }
+
+          setStage("4/4 — Waiting for the 3D scene…");
+
+          function showReady() {
+            if (startupFailed)
