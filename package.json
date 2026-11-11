@@ -1,0 +1,16 @@
+{
+  "name": "echo-ward-signaling",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "node index.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "socket.io": "^2.5.0",
+    "open-easyrtc": "^2.0.0"
+  }
+}
