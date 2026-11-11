@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ECHO WARD</title>
+<style>
+body{margin:0;background:#05090b;color:#e1e9df;font:16px system-ui}#menu{position:fixed;inset:0;z-index:20;background:#060b0eef;overflow:auto;padding:24px;box-sizing:border-box}.panel{max-width:680px;margin:auto}input,button{font:inherit;padding:12px;margin:5px;border:1px solid #67897d;background:#14231f;color:#eef5ec;border-radius:6px}input[type=text]{max-width:190px}label{display:block;margin:12px 0}#status{white-space:pre-wrap;color:#addcc5}#hud{position:fixed;left:12px;top:10px;z-index:2;pointer-events:none;white-space:pre-line;font-size:13px;text-shadow:0 1px 3px black}.muted{color:#b8c3b5}
+</style>
+<script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+<script src="config.js?v=3"></script></head>
+<body>
+<div id="menu"><div class="panel"><h1>ECHO WARD</h1>
+<p>Standalone browser prototype. Start in solo mode to test controls. No APK required.</p>
+<label>Name <input id="name" type="text" value="Wanderer" maxlength="20"></label>
+<label><input id="mic" type="checkbox"> Share my live microphone with room participants; enable noise-based AI hearing.</label>
+<label><input id="theft" type="checkbox"> Allow temporary local voice recording and distorted playback. Requires microphone sharing; clips are not uploaded.</label>
+<label>Noise threshold <input id="threshold" type="range" min="-60" max="-10" value="-30"> <span id="level">-30 dBFS</span></label>
+<button id="solo">Play solo / test controls</button><button id="create">Create room</button>
+<div><input id="code" type="text" maxlength="4" placeholder="ROOM CODE"><button id="join">Join room</button></div>
+<p id="status">Loading game…</p>
+<h3>Quest controllers</h3><p>Left stick: move. Right stick: snap turn. Right trigger: draw chalk near the floor. Right A: submit rune. Left X: make a lure noise. Left Y: mute/unmute microphone. Raise the left controller near your face for the spyglass.</p>
+<p>After starting, use A-Frame's VR button in the bottom corner. Use physical controllers, not optical hand tracking. A diagnostic panel in VR shows controller input.</p>
+<h3>Objective</h3><p>Slowly draw a closed floor circle. Press A to activate it. Stand beyond it and use X or your voice to lure The Echo into it. Escape through the green door.</p>
+<p class="muted">Desktop: WASD move, mouse drag look, C draw, Enter submit, V spyglass, N lure, M mute, R restart. Use HTTPS on Quest. Microphone capture and sharing are opt-in; only test with trusted people.</p>
+<p class="muted">One arena, one simplified rune, procedural full bodies. Not photorealistic; elbows and legs are estimated. Multiplayer needs a separate signaling server. Performance and headset behavior need device testing.</p>
+</div></div><div id="hud"></div>
+<script src="game.js?v=3"></script>
+</body></html>
